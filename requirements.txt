@@ -1,0 +1,8 @@
+streamlit>=1.56,<2.0
+ultralytics>=8.2,<9.0
+opencv-python>=4.8,<5.0
+torch>=2.2
+torchvision>=0.17
+pandas>=2.0,<3.0
+plotly>=5.20,<7.0
+PyYAML>=6.0,<7.0

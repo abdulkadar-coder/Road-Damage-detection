@@ -1,0 +1,13 @@
+.venv/
+venv/
+.uv-cache/
+__pycache__/
+*.py[cod]
+.streamlit/secrets.toml
+data/
+runs/
+models/*.pt
+*.mp4
+*.avi
+*.mov
+.venv312/
