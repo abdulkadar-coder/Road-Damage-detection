@@ -5,7 +5,7 @@ import io
 import math
 import os
 import tempfile
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
@@ -20,10 +20,19 @@ from .model import (
     resolve_inference_device,
     validate_model,
 )
+from .vehicle_impact import (
+    DamageAssessment,
+    analyze_damaged_spot,
+    draw_vehicle_warning_overlay,
+    summarize_overall_assessment,
+)
 
 CSV_FIELDS = [
     "timestamp_seconds", "frame_number", "class_code", "class_name", "confidence",
     "severity", "severity_score", "area_fraction", "x1", "y1", "x2", "y2",
+    "impact_level", "impact_score", "warning_level", "lane_zone", "in_vehicle_path",
+    "proximity_zone", "estimated_distance_m", "recommended_action",
+    "vibration_shock", "suspension_risk", "tire_risk", "two_wheeler_risk",
 ]
 ALLOWED_EXTENSIONS = {".mp4", ".avi", ".mov"}
 
@@ -42,10 +51,11 @@ class VideoResult:
     width: int
     height: int
     duration: float
+    summary: dict = field(default_factory=dict)
 
     def csv_bytes(self) -> bytes:
         buffer = io.StringIO(newline="")
-        writer = csv.DictWriter(buffer, fieldnames=CSV_FIELDS)
+        writer = csv.DictWriter(buffer, fieldnames=CSV_FIELDS, extrasaction="ignore")
         writer.writeheader()
         writer.writerows(self.detections)
         return buffer.getvalue().encode("utf-8")
@@ -130,19 +140,24 @@ def process_video(
             frame_count, fps, width, height = _validate_metadata(cap)
             writer = _make_writer(output_path, fps, width, height)
             frame_number = 0
+            all_assessments: list[DamageAssessment] = []
+            last_annotated_frame = None
+
             while True:
                 ok, frame = cap.read()
                 if not ok:
                     break
                 if frame.shape[1] != width or frame.shape[0] != height:
                     raise VideoProcessingError("A decoded frame has inconsistent dimensions.")
+
                 if frame_number % sample_every == 0:
                     predictions = model.predict(frame, **prediction_options)
                     if not predictions:
                         raise VideoProcessingError("The model returned no inference result for a frame.")
                     result = predictions[0]
-                    annotated = result.plot()
                     boxes = result.boxes
+                    frame_assessments: list[DamageAssessment] = []
+
                     if boxes is not None:
                         for box in boxes:
                             class_id = int(box.cls[0].item())
@@ -165,6 +180,21 @@ def process_video(
                                 severity_score = 0 if area_fraction < 0.005 else (1 if area_fraction < 0.03 else 2)
                                 severity = "Minor" if severity_score == 0 else ("Moderate" if severity_score == 1 else "Severe")
 
+                            # Detailed spot localization and vehicle impact assessment
+                            assessment = analyze_damaged_spot(
+                                x1=x1,
+                                y1=y1,
+                                x2=x2,
+                                y2=y2,
+                                img_width=width,
+                                img_height=height,
+                                class_code=code_upper,
+                                class_name=display_name,
+                                confidence=confidence_value,
+                            )
+                            frame_assessments.append(assessment)
+                            all_assessments.append(assessment)
+
                             rows.append({
                                 "timestamp_seconds": round(frame_number / fps, 3),
                                 "frame_number": frame_number,
@@ -176,13 +206,43 @@ def process_video(
                                 "area_fraction": round(area_fraction, 6),
                                 "x1": round(x1, 2), "y1": round(y1, 2),
                                 "x2": round(x2, 2), "y2": round(y2, 2),
+                                "impact_level": assessment.impact.impact_level,
+                                "impact_score": assessment.impact.impact_score,
+                                "warning_level": assessment.warning.warning_level,
+                                "lane_zone": assessment.spot.lane_zone,
+                                "in_vehicle_path": assessment.spot.in_vehicle_path,
+                                "proximity_zone": assessment.spot.proximity_zone,
+                                "estimated_distance_m": round(assessment.spot.distance_m, 1),
+                                "recommended_action": assessment.warning.recommended_action,
+                                "vibration_shock": assessment.impact.vibration_shock,
+                                "suspension_risk": assessment.impact.suspension_risk,
+                                "suspension_risk_pct": assessment.impact.suspension_risk_pct,
+                                "tire_risk": assessment.impact.tire_risk,
+                                "tire_risk_pct": assessment.impact.tire_risk_pct,
+                                "steering_risk": assessment.impact.steering_risk,
+                                "chassis_risk": assessment.impact.chassis_risk,
+                                "two_wheeler_risk": assessment.impact.two_wheeler_risk,
+                                "two_wheeler_risk_pct": assessment.impact.two_wheeler_risk_pct,
                             })
-                    frame = annotated
+
+                    annotated = draw_vehicle_warning_overlay(
+                        image=frame,
+                        assessments=frame_assessments,
+                        show_trajectory=True,
+                        show_hud_banner=True,
+                    )
+                    last_annotated_frame = annotated
+                    frame_to_write = annotated
                     sampled_frames += 1
-                writer.write(frame)
+                else:
+                    # In-between frame: use last annotated frame to maintain visual HUD stability
+                    frame_to_write = last_annotated_frame if last_annotated_frame is not None else frame
+
+                writer.write(frame_to_write)
                 frame_number += 1
                 if progress_callback and (frame_number % max(1, frame_count // 100) == 0 or frame_number == frame_count):
                     progress_callback(frame_number / frame_count, f"Processing frame {frame_number:,} of {frame_count:,}")
+
             if frame_number == 0:
                 raise VideoProcessingError("No decodable frames were found in this video.")
             writer.release()
@@ -199,6 +259,9 @@ def process_video(
                 raise VideoProcessingError("The encoded MP4 contains no readable frames.")
             with open(output_path, "rb") as handle:
                 output_bytes = handle.read()
+
+            video_summary = summarize_overall_assessment(all_assessments)
+
             return VideoResult(
                 video_bytes=output_bytes,
                 detections=rows,
@@ -208,7 +271,9 @@ def process_video(
                 width=width,
                 height=height,
                 duration=frame_number / fps,
+                summary=video_summary,
             )
+
         except cv2.error as exc:
             raise VideoProcessingError(f"OpenCV failed while processing this video: {exc}") from exc
         finally:

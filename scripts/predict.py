@@ -55,7 +55,7 @@ def main() -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_bytes(result.image_bytes)
     buffer = io.StringIO(newline="")
-    writer = csv.DictWriter(buffer, fieldnames=CSV_FIELDS)
+    writer = csv.DictWriter(buffer, fieldnames=CSV_FIELDS, extrasaction="ignore")
     writer.writeheader()
     writer.writerows(result.detections)
     csv_path.parent.mkdir(parents=True, exist_ok=True)

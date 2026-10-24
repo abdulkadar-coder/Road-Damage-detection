@@ -29,8 +29,8 @@ def inject_styles() -> None:
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-        :root { --ink:#11120f; --paper:#efeee6; --line:#35372e; --acid:#d5ff58; }
+        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+        :root { --ink:#11120f; --paper:#efeee6; --line:#35372e; --acid:#d5ff58; --danger:#ef4444; --warning:#f97316; }
         html, body, [class*="css"] { font-family:'Space Grotesk',sans-serif; }
         .stApp { background:var(--ink); color:var(--paper); }
         [data-testid="stHeader"] { background:transparent; }
@@ -60,7 +60,7 @@ def inject_styles() -> None:
         .hero-copy { max-width:340px; color:#c5c7b9; font-size:1rem; line-height:1.5; margin:0 1rem .15rem 0; }
         .hero-bottom { padding-top:1rem; border-top:1px solid #44463b; color:#a9ac9e; }
         .hero-bottom b { color:var(--paper); font-weight:500; }
-        .section-kicker { color:var(--acid); margin-bottom:.4rem; }
+        .section-kicker { color:var(--acid); margin-bottom:.4rem; font-family:'DM Mono',monospace; font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; }
         @keyframes blink { 50% { opacity:.35; } }
         @keyframes hero-in { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
         @keyframes hero-scan { from { left:-25%; } to { left:125%; } }
@@ -79,16 +79,82 @@ def inject_styles() -> None:
         [data-testid="stFileUploaderDropzone"] * { color:#dedfd3; }
         [data-testid="stDataFrame"] { border:1px solid #35372e; border-radius:5px; }
         hr { border-color:#35372e; }
+
+        /* ADAS HUD Warning Alert Banners */
+        .hud-banner {
+          border-radius: 8px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem;
+          position: relative; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+          animation: hero-in .5s ease-out both;
+        }
+        .hud-critical {
+          background: radial-gradient(ellipse at 85% 50%, rgba(239,68,68,0.25) 0%, transparent 65%), linear-gradient(135deg, #2b1111 0%, #150a0a 100%);
+          border: 1px solid #ef4444; animation: pulse-glow-red 2.4s infinite ease-in-out;
+        }
+        .hud-high {
+          background: radial-gradient(ellipse at 85% 50%, rgba(249,115,22,0.22) 0%, transparent 65%), linear-gradient(135deg, #2c1a0e 0%, #17100b 100%);
+          border: 1px solid #f97316;
+        }
+        .hud-caution {
+          background: radial-gradient(ellipse at 85% 50%, rgba(234,179,8,0.18) 0%, transparent 65%), linear-gradient(135deg, #27230e 0%, #15140a 100%);
+          border: 1px solid #eab308;
+        }
+        .hud-safe {
+          background: radial-gradient(ellipse at 85% 50%, rgba(34,197,94,0.18) 0%, transparent 65%), linear-gradient(135deg, #0e2716 0%, #0a170f 100%);
+          border: 1px solid #22c55e;
+        }
+        @keyframes pulse-glow-red {
+          0%, 100% { box-shadow: 0 0 15px rgba(239,68,68,0.3); }
+          50% { box-shadow: 0 0 32px rgba(239,68,68,0.65); }
+        }
+        .hud-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .6rem; }
+        .hud-badge {
+          display: inline-flex; align-items: center; gap: .4rem;
+          font-family: 'DM Mono', monospace; font-size: .74rem; font-weight: 600;
+          letter-spacing: .12em; padding: .3rem .75rem; border-radius: 4px; text-transform: uppercase;
+        }
+        .hud-badge-critical { background: #ef4444; color: #fff; box-shadow: 0 0 10px rgba(239,68,68,0.5); }
+        .hud-badge-high { background: #f97316; color: #fff; }
+        .hud-badge-caution { background: #eab308; color: #111; }
+        .hud-badge-safe { background: #22c55e; color: #111; }
+        .hud-title { font-size: 1.35rem; font-weight: 700; color: #ffffff; margin: .3rem 0 .4rem; letter-spacing: -.02em; }
+        .hud-desc { color: #d6d8c8; font-size: .95rem; line-height: 1.5; margin-bottom: .75rem; }
+        .hud-action {
+          background: rgba(0,0,0,0.55); border-left: 3px solid var(--acid);
+          padding: .75rem 1rem; border-radius: 0 5px 5px 0;
+          font-family: 'DM Mono', monospace; font-size: .88rem; color: #ffffff;
+        }
+        .hud-action strong { color: var(--acid); }
+
+        /* Vehicle Vulnerability Card & Meters */
+        .vuln-card {
+          background: #181914; border: 1px solid #35372e; border-radius: 6px;
+          padding: 1rem 1.15rem; margin-bottom: .85rem; transition: transform .2s, border-color .2s;
+        }
+        .vuln-card:hover { transform: translateY(-2px); border-color: #79804e; }
+        .vuln-card-title { font-family: 'DM Mono', monospace; font-size: .75rem; text-transform: uppercase; color: #aaad9e; letter-spacing: .08em; }
+        .vuln-card-val { font-size: 1.35rem; font-weight: 700; color: var(--paper); margin: .3rem 0; }
+        .vuln-bar-bg { background: #252720; border-radius: 999px; height: 8px; overflow: hidden; margin: .55rem 0 .35rem; }
+        .vuln-bar-fill { height: 100%; border-radius: 999px; transition: width .5s ease; }
+        .vuln-card-desc { font-size: .78rem; color: #a9ac9e; line-height: 1.4; }
+
+        /* Vehicle Type Box */
+        .vtype-card {
+          background: #191b15; border: 1px solid #373a30; border-radius: 6px;
+          padding: .9rem 1rem; margin-bottom: .6rem;
+        }
+        .vtype-title { font-family: 'DM Mono', monospace; font-size: .78rem; font-weight: 600; color: var(--acid); letter-spacing: .05em; }
+        .vtype-text { font-size: .85rem; color: #c9cbc0; margin-top: .3rem; line-height: 1.4; }
+
         @media(max-width:720px) { .hero { min-height:0; padding:1.1rem; } .hero-layout { display:block; margin:2rem 0; }
           .hero h1 { font-size:4rem; } .hero-copy { margin:1.2rem 0 0; } .hero-bottom { align-items:flex-start; flex-direction:column; gap:.4rem; } }
         @media(prefers-reduced-motion:reduce) { *,*:before,*:after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
         </style>
         <section class="hero">
-          <div class="hero-top"><span class="micro">RDD2022 &nbsp; / &nbsp; FIELD MONITOR 01</span><span class="live"><i></i> LOCAL INFERENCE</span></div>
+          <div class="hero-top"><span class="micro">RDD2022 &nbsp; / &nbsp; ADAS FIELD MONITOR</span><span class="live"><i></i> ACTIVE INFERENCE</span></div>
           <div class="hero-layout"><h1>READ THE<br><em>ROAD.</em></h1>
-            <p class="hero-copy">Road-surface damage analysis from your uploaded field imagery. One frame or a full drive, processed locally with your trained YOLO model.</p>
+            <p class="hero-copy">AI road hazard perception, vehicle impact assessment, and driver warning advisory. Processed locally with real-time lane trajectory tracking.</p>
           </div>
-          <div class="hero-bottom"><span><b>INPUT</b> &nbsp; IMAGE / VIDEO</span><span><b>MODEL</b> &nbsp; YOLOv8n · RDD2022</span><span>NO LIVE CAMERA · FILES STAY LOCAL</span></div>
+          <div class="hero-bottom"><span><b>INPUT</b> &nbsp; IMAGE / VIDEO</span><span><b>AI MODULE</b> &nbsp; YOLOv8 + VEHICLE IMPACT ADAS</span><span>NO LIVE CAMERA · FILES STAY LOCAL</span></div>
         </section>
         """,
         unsafe_allow_html=True,
@@ -97,21 +163,155 @@ def inject_styles() -> None:
 
 def dataframe_for(rows: list[dict]):
     import pandas as pd
-    columns = [
+    if not rows:
+        return pd.DataFrame()
+    columns_order = [
         "timestamp_seconds", "frame_number", "class_code", "class_name", "confidence",
+        "warning_level", "impact_level", "impact_score", "lane_zone", "in_vehicle_path",
+        "proximity_zone", "estimated_distance_m", "recommended_action",
+        "vibration_shock", "suspension_risk", "tire_risk", "two_wheeler_risk",
         "severity", "severity_score", "area_fraction", "x1", "y1", "x2", "y2",
     ]
-    return pd.DataFrame(rows, columns=columns)
+    all_keys = list(rows[0].keys())
+    ordered_cols = [c for c in columns_order if c in all_keys]
+    for k in all_keys:
+        if k not in ordered_cols:
+            ordered_cols.append(k)
+    return pd.DataFrame(rows)[ordered_cols]
 
 
 def show_results(result: dict, filename: str, mode: str, is_rdd: bool = True) -> None:
     import pandas as pd
     import plotly.express as px
+    import plotly.graph_objects as go
+    from road_damage.vehicle_impact import summarize_overall_assessment
 
     df = dataframe_for(result["rows"])
     count = len(df)
-    st.markdown('<div class="section-kicker">01 / Analysis output</div>', unsafe_allow_html=True)
-    st.header("Inspection results")
+    summary = result.get("summary") or {}
+    if not summary and count > 0:
+        # Fallback if summary wasn't directly cached
+        from road_damage.vehicle_impact import analyze_damaged_spot
+        assessments = []
+        for r in result["rows"]:
+            a = analyze_damaged_spot(
+                x1=r.get("x1", 0), y1=r.get("y1", 0), x2=r.get("x2", 1), y2=r.get("y2", 1),
+                img_width=result.get("width", 640), img_height=result.get("height", 640),
+                class_code=r.get("class_code", "D40"), class_name=r.get("class_name", "Pothole"),
+                confidence=r.get("confidence", 0.5),
+            )
+            assessments.append(a)
+        summary = summarize_overall_assessment(assessments)
+    elif not summary:
+        summary = summarize_overall_assessment([])
+
+    # ── 00 / ACTIVE ADAS WARNING HUD ──────────────────────────────────────────
+    warning_level = summary.get("overall_warning_level", "CLEAR")
+    if not count:
+        warning_level = "CLEAR"
+
+    hud_class = {
+        "CRITICAL": "hud-critical",
+        "HIGH": "hud-high",
+        "CAUTION": "hud-caution",
+        "SAFE": "hud-safe",
+        "CLEAR": "hud-safe",
+    }.get(warning_level, "hud-caution")
+
+    badge_class = {
+        "CRITICAL": "hud-badge-critical",
+        "HIGH": "hud-badge-high",
+        "CAUTION": "hud-badge-caution",
+        "SAFE": "hud-badge-safe",
+        "CLEAR": "hud-badge-safe",
+    }.get(warning_level, "hud-badge-caution")
+
+    action_text = summary.get("recommended_action") or (
+        "Road surface is clear. Safe to proceed at regular speed." if not count else "Proceed with road awareness."
+    )
+    dominant_hazard = summary.get("dominant_hazard", "None")
+    max_impact = summary.get("max_impact_score", 0)
+    in_path_count = summary.get("in_path_count", 0)
+
+    icon = "🚨" if warning_level == "CRITICAL" else ("⚠️" if warning_level == "HIGH" else ("⚡" if warning_level == "CAUTION" else "✓"))
+    warning_title = f"{icon} {warning_level} ALERT: {dominant_hazard.upper()}" if count else "✓ ROAD SURFACE CLEAR: NO HAZARDS DETECTED"
+
+    st.markdown('<div class="section-kicker">01 / ADAS Real-Time Driver Warning</div>', unsafe_allow_html=True)
+    st.markdown(
+        f"""
+        <div class="hud-banner {hud_class}">
+          <div class="hud-header">
+            <span class="hud-badge {badge_class}">{icon} WARNING LEVEL: {warning_level}</span>
+            <span class="micro" style="color:#d6d8c8">COLLISION IMPACT INDEX: <b style="color:var(--acid);font-size:1.15rem">{max_impact}%</b></span>
+          </div>
+          <div class="hud-title">{warning_title}</div>
+          <div class="hud-desc">
+            AI detection localized <b>{count:,}</b> road defect(s). 
+            <b>{in_path_count}</b> hazard spot(s) detected directly in the vehicle travel path.
+          </div>
+          <div class="hud-action">
+            <strong>RECOMMENDED DRIVER ACTION:</strong> {action_text}
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    if count > 0 and warning_level in {"CRITICAL", "HIGH", "CAUTION"}:
+        components.html(
+            """
+            <div style="display:flex;align-items:center;gap:14px;margin:2px 0 8px;">
+              <button id="alertBtn" onclick="playAdasChime()" style="
+                background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+                color:#ffffff; border:1px solid #f87171; padding:7px 16px; border-radius:4px;
+                font-family:'DM Mono',monospace; font-size:11px; font-weight:600;
+                letter-spacing:0.08em; cursor:pointer; display:inline-flex; align-items:center; gap:7px;
+                box-shadow: 0 0 12px rgba(239,68,68,0.45); transition: transform 0.15s ease;
+              " onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+                <span>🔊</span> PLAY ADAS AUDIBLE ALERT CHIME
+              </button>
+              <span style="color:#a8aa9c;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.05em;">
+                In-cabin audio advisory simulation
+              </span>
+            </div>
+            <script>
+            function playAdasChime() {
+              try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const now = ctx.currentTime;
+                // High tone pulse
+                const osc1 = ctx.createOscillator();
+                const gain1 = ctx.createGain();
+                osc1.type = 'sawtooth';
+                osc1.frequency.setValueAtTime(920, now);
+                gain1.gain.setValueAtTime(0.3, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
+                osc1.start(now);
+                osc1.stop(now + 0.18);
+
+                // Second alert pulse
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.type = 'sawtooth';
+                osc2.frequency.setValueAtTime(1240, now + 0.22);
+                gain2.gain.setValueAtTime(0.35, now + 0.22);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.50);
+                osc2.connect(gain2);
+                gain2.connect(ctx.destination);
+                osc2.start(now + 0.22);
+                osc2.stop(now + 0.50);
+              } catch(e) {}
+            }
+            </script>
+            """,
+            height=48,
+        )
+
+    # ── 01 / Visual Inspection ────────────────────────────────────────────────
+    st.markdown('<div class="section-kicker" style="margin-top:1.2rem">02 / Visual ADAS Perception</div>', unsafe_allow_html=True)
+    st.header("Inspection imagery & trajectory overlay")
 
     if not is_rdd:
         st.markdown(
@@ -128,7 +328,7 @@ def show_results(result: dict, filename: str, mode: str, is_rdd: bool = True) ->
             st.caption("SOURCE IMAGE")
             st.image(result["source"], use_container_width=True)
         with annotated:
-            st.caption("ANNOTATED IMAGE")
+            st.caption("ANNOTATED ADAS IMAGE (WITH TRAJECTORY & TELEMETRY)")
             st.image(result["image"], use_container_width=True)
         st.caption(f'{result["width"]} × {result["height"]} pixels · single image inference')
         st.download_button("Download annotated image", result["image"],
@@ -142,24 +342,203 @@ def show_results(result: dict, filename: str, mode: str, is_rdd: bool = True) ->
         st.caption(f'{result["width"]} × {result["height"]} · {result["fps"]:.2f} FPS · '
                    f'{result["duration"]:.1f} seconds · analyzed {result["sampled_frames"]:,} of {result["frame_count"]:,} frames')
 
-    st.markdown(
-        '<div class="note"><strong>Heuristic severity estimate.</strong> This transparent class and '
-        'image-area rule is not an engineering assessment. Video counts are detections in sampled frames; '
-        'the same road feature may be counted again later.</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown('<div class="section-kicker" style="margin-top:1.5rem">02 / Damage summary</div>', unsafe_allow_html=True)
-    st.subheader("Detection observations")
+    # ── 02 / Vehicle Impact & Mechanical Stress Analysis ──────────────────────
+    st.markdown('<div class="section-kicker" style="margin-top:1.6rem">03 / Vehicle Impact & Risk Analysis</div>', unsafe_allow_html=True)
+    st.subheader("Vehicle mechanical stress assessment")
+
+    # High-level telemetry metrics
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Peak Impact Index", f"{max_impact}%", delta=f"{summary.get('overall_impact_level', 'NONE')}")
+    m2.metric("Average Impact", f"{summary.get('avg_impact_score', 0)}%")
+    m3.metric("Hazards in Wheel Path", f"{in_path_count:,}")
+    worst_shock = "Mild Bump"
+    if count and "vibration_shock" in df.columns:
+        worst_shock = df.iloc[0]["vibration_shock"] if len(df) else "Mild Bump"
+    m4.metric("Dynamic Vibration", worst_shock.split("(")[0].strip())
+
+    # Component Vulnerability Gauges
+    vuln = summary.get("vulnerability", {})
+    st.markdown('<div class="section-kicker" style="margin-top:1.2rem">Subsystem Vulnerability Index</div>', unsafe_allow_html=True)
+    c1, c2, c3, c4 = st.columns(4)
+
+    def color_for_pct(val: int) -> str:
+        if val >= 75:
+            return "#ef4444"
+        if val >= 50:
+            return "#f97316"
+        if val >= 25:
+            return "#eab308"
+        return "#22c55e"
+
+    with c1:
+        tire_val = vuln.get("tires", 0)
+        c_tire = color_for_pct(tire_val)
+        st.markdown(
+            f"""
+            <div class="vuln-card">
+              <div class="vuln-card-title">🛞 Tires & Rims</div>
+              <div class="vuln-card-val" style="color:{c_tire}">{tire_val}%</div>
+              <div class="vuln-bar-bg"><div class="vuln-bar-fill" style="width:{tire_val}%;background:{c_tire}"></div></div>
+              <div class="vuln-card-desc">Rim denting, bead unseating, and sidewall blowout stress.</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with c2:
+        susp_val = vuln.get("suspension", 0)
+        c_susp = color_for_pct(susp_val)
+        st.markdown(
+            f"""
+            <div class="vuln-card">
+              <div class="vuln-card-title">🏎️ Suspension & Shocks</div>
+              <div class="vuln-card-val" style="color:{c_susp}">{susp_val}%</div>
+              <div class="vuln-bar-bg"><div class="vuln-bar-fill" style="width:{susp_val}%;background:{c_susp}"></div></div>
+              <div class="vuln-card-desc">Strut damper bottoming, coil fatigue, control-arm bushing strain.</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with c3:
+        steer_val = vuln.get("steering", 0)
+        c_steer = color_for_pct(steer_val)
+        st.markdown(
+            f"""
+            <div class="vuln-card">
+              <div class="vuln-card-title">⚙️ Steering & Alignment</div>
+              <div class="vuln-card-val" style="color:{c_steer}">{steer_val}%</div>
+              <div class="vuln-bar-bg"><div class="vuln-bar-fill" style="width:{steer_val}%;background:{c_steer}"></div></div>
+              <div class="vuln-card-desc">Toe/camber drift, sudden steering kickback, and groove tramlining.</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with c4:
+        chas_val = vuln.get("chassis", 0)
+        c_chas = color_for_pct(chas_val)
+        st.markdown(
+            f"""
+            <div class="vuln-card">
+              <div class="vuln-card-title">🛡️ Underbody & Clearance</div>
+              <div class="vuln-card-val" style="color:{c_chas}">{chas_val}%</div>
+              <div class="vuln-bar-bg"><div class="vuln-bar-fill" style="width:{chas_val}%;background:{c_chas}"></div></div>
+              <div class="vuln-card-desc">Front splitter scrape, oil pan hazard, undercarriage impact.</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    # Multi-Vehicle Type Vulnerability Breakdown
+    st.markdown('<div class="section-kicker" style="margin-top:1rem">Impact by Vehicle Category</div>', unsafe_allow_html=True)
+    v1, v2, v3, v4 = st.columns(4)
+    with v1:
+        two_wheel_val = vuln.get("two_wheeler", 0)
+        tw_color = "#ef4444" if two_wheel_val >= 60 else "#f97316"
+        st.markdown(
+            f"""
+            <div class="vtype-card" style="border-color:{tw_color}">
+              <div class="vtype-title" style="color:{tw_color}">🏍️ Two-Wheelers ({two_wheel_val}%)</div>
+              <div class="vtype-text">
+                {"<b>EXTREME FALL HAZARD</b>: High wheel-trap risk in potholes/cracks. Sudden handlebar deflection likely." if two_wheel_val >= 60 else "Elevated instability. Defect causes rapid front tire deflection."}
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with v2:
+        st.markdown(
+            """
+            <div class="vtype-card">
+              <div class="vtype-title">🚗 Sedans & Hatchbacks</div>
+              <div class="vtype-text">
+                Low ground clearance creates high risk of bumper scrapes and rim pinch flats on deep potholes.
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with v3:
+        st.markdown(
+            """
+            <div class="vtype-card">
+              <div class="vtype-title">🚙 SUVs & Crossovers</div>
+              <div class="vtype-text">
+                Generous clearance avoids undercarriage contact, but high vertical axle forces accelerate shock wear.
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with v4:
+        st.markdown(
+            """
+            <div class="vtype-card">
+              <div class="vtype-title">🚚 Commercial Trucks</div>
+              <div class="vtype-text">
+                Heavy payload transmits high kinetic impact, accelerating pavement failure and tire wear.
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    # ── 03 / Damaged Spot Spatial Localization ────────────────────────────────
+    st.markdown('<div class="section-kicker" style="margin-top:1.5rem">04 / Damaged Spot Localization</div>', unsafe_allow_html=True)
+    st.subheader("Spatial road position & proximity")
+
+    if count and "lane_zone" in df.columns:
+        pos_col1, pos_col2 = st.columns(2)
+        with pos_col1:
+            lane_counts = df["lane_zone"].value_counts().reset_index()
+            lane_counts.columns = ["Lane Position", "Spot Count"]
+            fig_lane = px.pie(
+                lane_counts, names="Lane Position", values="Spot Count",
+                title="DEFECTS BY LATERAL LANE POSITION",
+                color="Lane Position",
+                color_discrete_map={
+                    "Direct Vehicle Travel Path": "#ef4444",
+                    "Left Shoulder / Lane": "#f97316",
+                    "Right Shoulder / Lane": "#d5ff58",
+                },
+            )
+            fig_lane.update_layout(
+                template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)",
+                font=dict(family="DM Mono, monospace", color="#dedfd3", size=11),
+                margin=dict(l=10, r=10, t=50, b=10),
+            )
+            st.plotly_chart(fig_lane, use_container_width=True)
+
+        with pos_col2:
+            prox_counts = df["proximity_zone"].value_counts().reset_index()
+            prox_counts.columns = ["Proximity Zone", "Spot Count"]
+            fig_prox = px.bar(
+                prox_counts, x="Proximity Zone", y="Spot Count",
+                title="DEFECTS BY LONGITUDINAL PROXIMITY",
+                color="Proximity Zone",
+                color_discrete_sequence=["#ef4444", "#f97316", "#d5ff58"],
+            )
+            fig_prox.update_layout(
+                template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                font=dict(family="DM Mono, monospace", color="#dedfd3", size=11),
+                margin=dict(l=10, r=10, t=50, b=10), showlegend=False,
+            )
+            fig_prox.update_xaxes(gridcolor="#303129")
+            fig_prox.update_yaxes(gridcolor="#303129")
+            st.plotly_chart(fig_prox, use_container_width=True)
+
+    # ── 04 / Visual Analytics ─────────────────────────────────────────────────
+    st.markdown('<div class="section-kicker" style="margin-top:1.5rem">05 / Visual Analytics</div>', unsafe_allow_html=True)
+    st.subheader("Damage distribution & trends")
 
     if is_rdd:
-        # RDD2022 mode: show the four specific damage classes
         counts = df["class_name"].value_counts() if count else pd.Series(dtype=int)
         metrics = st.columns(5)
         metrics[0].metric("Total detections", f"{count:,}")
         for i, name in enumerate(CLASS_NAMES.values(), 1):
             metrics[i].metric(name, f'{int(counts.get(name, 0)):,}')
     else:
-        # Generic mode: show top detected classes
         counts = df["class_name"].value_counts() if count else pd.Series(dtype=int)
         top_classes = counts.head(4)
         metrics = st.columns(min(5, 1 + len(top_classes)))
@@ -170,8 +549,6 @@ def show_results(result: dict, filename: str, mode: str, is_rdd: bool = True) ->
 
     if count:
         class_counts = df.groupby("class_name", as_index=False).size().rename(columns={"size": "count"})
-        severity_counts = (df["severity"].value_counts().reindex(["Minor", "Moderate", "Severe"], fill_value=0)
-                           .rename_axis("severity").reset_index(name="count"))
         layout = dict(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
                       font=dict(family="DM Mono, monospace", color="#dedfd3", size=11),
                       margin=dict(l=12, r=12, t=55, b=12))
@@ -185,32 +562,63 @@ def show_results(result: dict, filename: str, mode: str, is_rdd: bool = True) ->
             fig.update_yaxes(title="Observations", gridcolor="#303129")
             st.plotly_chart(fig, use_container_width=True)
         with right:
-            fig = px.bar(severity_counts, x="severity", y="count", color="severity",
-                         title="HEURISTIC SEVERITY ESTIMATES",
-                         color_discrete_map={"Minor": "#d5ff58", "Moderate": "#fbad58", "Severe": "#fb6958"})
-            fig.update_layout(**layout, showlegend=False)
-            fig.update_xaxes(title=None, gridcolor="#303129")
-            fig.update_yaxes(title="Observations", gridcolor="#303129")
-            st.plotly_chart(fig, use_container_width=True)
+            if "impact_level" in df.columns:
+                impact_counts = (df["impact_level"].value_counts().reindex(["LOW", "MODERATE", "HIGH", "CRITICAL"], fill_value=0)
+                                 .rename_axis("impact_level").reset_index(name="count"))
+                fig = px.bar(impact_counts, x="impact_level", y="count", color="impact_level",
+                             title="VEHICLE IMPACT LEVEL DISTRIBUTION",
+                             color_discrete_map={"LOW": "#22c55e", "MODERATE": "#eab308", "HIGH": "#f97316", "CRITICAL": "#ef4444"})
+                fig.update_layout(**layout, showlegend=False)
+                fig.update_xaxes(title=None, gridcolor="#303129")
+                fig.update_yaxes(title="Observations", gridcolor="#303129")
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                severity_counts = (df["severity"].value_counts().reindex(["Minor", "Moderate", "Severe"], fill_value=0)
+                                   .rename_axis("severity").reset_index(name="count"))
+                fig = px.bar(severity_counts, x="severity", y="count", color="severity",
+                             title="HEURISTIC SEVERITY ESTIMATES",
+                             color_discrete_map={"Minor": "#d5ff58", "Moderate": "#fbad58", "Severe": "#fb6958"})
+                fig.update_layout(**layout, showlegend=False)
+                fig.update_xaxes(title=None, gridcolor="#303129")
+                fig.update_yaxes(title="Observations", gridcolor="#303129")
+                st.plotly_chart(fig, use_container_width=True)
+
         if mode == "Video":
-            timeline = (df.assign(time_bucket=(df["timestamp_seconds"] // 5 * 5).astype(int))
-                        .groupby(["time_bucket", "class_name"], as_index=False).size()
-                        .rename(columns={"size": "count", "time_bucket": "Time (s)"}))
-            fig = px.line(timeline, x="Time (s)", y="count", color="class_name", markers=True,
-                          title="DETECTION OBSERVATIONS OVER VIDEO TIME",
-                          color_discrete_sequence=["#d5ff58", "#fb8958", "#a8a9fc", "#82d5d0"])
-            fig.update_layout(**layout)
-            fig.update_xaxes(gridcolor="#303129")
-            fig.update_yaxes(title="Observations", gridcolor="#303129")
-            st.plotly_chart(fig, use_container_width=True)
+            # Video Impact timeline
+            vleft, vright = st.columns(2)
+            with vleft:
+                timeline = (df.assign(time_bucket=(df["timestamp_seconds"] // 5 * 5).astype(int))
+                            .groupby(["time_bucket", "class_name"], as_index=False).size()
+                            .rename(columns={"size": "count", "time_bucket": "Time (s)"}))
+                fig = px.line(timeline, x="Time (s)", y="count", color="class_name", markers=True,
+                              title="OBSERVATIONS OVER VIDEO TIME",
+                              color_discrete_sequence=["#d5ff58", "#fb8958", "#a8a9fc", "#82d5d0"])
+                fig.update_layout(**layout)
+                fig.update_xaxes(gridcolor="#303129")
+                fig.update_yaxes(title="Observations", gridcolor="#303129")
+                st.plotly_chart(fig, use_container_width=True)
+
+            with vright:
+                if "impact_score" in df.columns:
+                    impact_time = (df.groupby("timestamp_seconds", as_index=False)["impact_score"].max()
+                                   .rename(columns={"timestamp_seconds": "Time (s)", "impact_score": "Max Impact %"}))
+                    fig_imp = px.area(impact_time, x="Time (s)", y="Max Impact %",
+                                      title="VEHICLE IMPACT SEVERITY OVER VIDEO DRIVE",
+                                      color_discrete_sequence=["#ef4444"])
+                    fig_imp.update_layout(**layout)
+                    fig_imp.update_xaxes(gridcolor="#303129")
+                    fig_imp.update_yaxes(range=[0, 100], gridcolor="#303129")
+                    st.plotly_chart(fig_imp, use_container_width=True)
     else:
         st.info("No detections passed the selected confidence threshold.")
 
-    st.markdown('<div class="section-kicker">03 / Detection log</div>', unsafe_allow_html=True)
+    # ── 05 / ADAS Telemetry & Detection Log ───────────────────────────────────
+    st.markdown('<div class="section-kicker">06 / ADAS Telemetry & Detection Log</div>', unsafe_allow_html=True)
     st.dataframe(df, use_container_width=True, hide_index=True)
     st.download_button("Export detection log as CSV", df.to_csv(index=False).encode("utf-8"),
-                       file_name=f"{Path(filename).stem}_detections.csv", mime="text/csv",
+                       file_name=f"{Path(filename).stem}_adas_detections.csv", mime="text/csv",
                        key="download_detection_csv")
+
 
 
 inject_styles()
@@ -223,7 +631,8 @@ has_trained_model = model_path.is_file()
 with st.sidebar:
     st.markdown('<div class="section-kicker">Control panel</div>', unsafe_allow_html=True)
     st.header("Analysis settings")
-    confidence = st.slider("Confidence threshold", 0.05, 0.95, 0.25, 0.05)
+    confidence = st.slider("Confidence threshold", 0.05, 0.95, 0.15, 0.05,
+                           help="Lower confidence (e.g. 0.10–0.20) catches subtle, water-filled, or shaded damage spots.")
     sample_every = st.slider("Analyze every Nth video frame", 1, 30, 3, 1)
     image_size = st.select_slider("Inference image size", options=[320, 416, 512, 640, 768], value=640)
     device_choice = st.selectbox("Inference device", ["Auto", "CPU", "CUDA: 0"])
@@ -231,8 +640,9 @@ with st.sidebar:
     st.caption("A wider frame interval is faster but records fewer video observations.")
     st.divider()
     if has_trained_model:
-        st.caption(f"Checkpoint path: {model_path.as_posix()}")
-        st.caption("Inference requires a trained four-class RDD2022 checkpoint.")
+        st.success("✅ **RDD2022 AI Model Active**")
+        st.caption(f"Loaded: `{model_path.name}`")
+        st.caption("Trained on: Potholes, Alligator Cracks, Transverse Cracks, Longitudinal Cracks.")
     else:
         st.info("🔄 **Fallback mode**: using generic YOLOv8n (COCO).")
         st.caption("For road-damage-specific detection, train a model with `scripts/train.py`.")
@@ -310,17 +720,33 @@ else:
                     if mode == "Image":
                         from road_damage.image import process_image
                         output = process_image(source_bytes, uploaded.name, model, confidence, image_size, device=inference_device)
-                        stored = {"key": key, "image": output.image_bytes, "source": source_bytes,
-                                  "rows": output.detections, "width": output.width, "height": output.height,
-                                  "is_rdd": is_rdd}
+                        stored = {
+                            "key": key,
+                            "image": output.image_bytes,
+                            "source": source_bytes,
+                            "rows": output.detections,
+                            "width": output.width,
+                            "height": output.height,
+                            "is_rdd": is_rdd,
+                            "summary": getattr(output, "summary", {}),
+                        }
                     else:
                         from road_damage.video import process_video
                         output = process_video(source_bytes, uploaded.name, model, confidence, sample_every,
                                                image_size, report_progress, device=inference_device)
-                        stored = {"key": key, "video": output.video_bytes, "rows": output.detections,
-                                  "frame_count": output.frame_count, "sampled_frames": output.sampled_frames,
-                                  "fps": output.fps, "width": output.width, "height": output.height,
-                                  "duration": output.duration, "is_rdd": is_rdd}
+                        stored = {
+                            "key": key,
+                            "video": output.video_bytes,
+                            "rows": output.detections,
+                            "frame_count": output.frame_count,
+                            "sampled_frames": output.sampled_frames,
+                            "fps": output.fps,
+                            "width": output.width,
+                            "height": output.height,
+                            "duration": output.duration,
+                            "is_rdd": is_rdd,
+                            "summary": getattr(output, "summary", {}),
+                        }
                 st.session_state["road_damage_result"] = stored
                 if progress is not None:
                     progress.progress(100, text="Video processing complete")
